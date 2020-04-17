@@ -247,12 +247,12 @@ class Tree implements \JsonSerializable
             foreach ($childIds as $id) {
                 if (isset($this->nodes[$pid])) {
                     if ($this->nodes[$pid] === $this->nodes[$id]) {
-                        call_user_func($this->buildWarningCallback, $this->nodes[$id], $pid);
+                        call_user_func($this->buildWarningCallback, $this->nodes[$id], $pid, $this->nodes[$this->rootId]);
                     } else {
                         $this->nodes[$pid]->addChild($this->nodes[$id]);
                     }
                 } else {
-                    call_user_func($this->buildWarningCallback, $this->nodes[$id], $pid);
+                    call_user_func($this->buildWarningCallback, $this->nodes[$id], $pid, $this->nodes[$this->rootId]);
                 }
             }
         }
@@ -262,7 +262,7 @@ class Tree implements \JsonSerializable
      * @param Node  $node
      * @param mixed $parentId
      */
-    protected function buildWarningHandler(Node $node, $parentId)
+    protected function buildWarningHandler(Node $node, $parentId, $rootNode)
     {
         if ((string) $parentId === (string) $node->getId()) {
             throw new InvalidParentException('Node with ID '.$node->getId().' references its own ID as parent ID');
