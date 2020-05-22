@@ -328,6 +328,6 @@ class Tree implements \JsonSerializable
      */
     protected function createNode($id, $parent, array $properties): Node
     {
-        return new Node($id, $parent, $properties);
+        return new Node($id, $parent, $properties, $this->idKey, $this->parentKey);
     }
 }
