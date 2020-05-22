@@ -31,18 +31,23 @@ class Node implements \JsonSerializable
      */
     protected $children = [];
 
+    protected $idKey;
+    protected $parentKey;
+
     /**
      * @param string|int $id
      * @param string|int $parent
      * @param array      $properties Associative array of node properties
      */
-    public function __construct($id, $parent, array $properties = [])
+    public function __construct($id, $parent, array $properties = [], $idKey = 'id', $parentKey = 'parent')
     {
         //$this->properties = array_change_key_case($properties, CASE_LOWER);
         $this->properties = $properties;
-        unset($this->properties['id'], $this->properties['parent']);
-        $this->properties['id'] = $id;
-        $this->properties['parent'] = $parent;
+        unset($this->properties[$idKey], $this->properties[$parentKey]);
+        $this->properties[$idKey] = $id;
+        $this->properties[$parentKey] = $parent;
+        $this->idKey = $idKey;
+		$this->parentKey = $parentKey;
     }
 
     /**
@@ -54,7 +59,7 @@ class Node implements \JsonSerializable
     {
         $this->children[] = $child;
         $child->parent = $this;
-        $child->properties['parent'] = $this->getId();
+        $child->properties[$this->parentKey] = $this->getId();
     }
 
     /**
@@ -156,7 +161,7 @@ class Node implements \JsonSerializable
      */
     public function getId()
     {
-        return $this->properties['id'];
+        return $this->properties[$this->idKey];
     }
 
     /**
@@ -175,7 +180,7 @@ class Node implements \JsonSerializable
             return $this->properties[$lowerName];
         }
         throw new \InvalidArgumentException(
-            "Undefined property: $name (Node ID: ".$this->properties['id'].')'
+            "Undefined property: $name (Node ID: ".$this->properties[$this->idKey].')'
         );
     }
 
@@ -208,7 +213,7 @@ class Node implements \JsonSerializable
      */
     public function __get($name)
     {
-        if ('parent' === $name || 'children' === $name) {
+        if ($this->parentKey === $name || 'children' === $name) {
             return $this->$name;
         }
         $lowerName = strtolower($name);
@@ -216,7 +221,7 @@ class Node implements \JsonSerializable
             return $this->properties[$lowerName];
         }
         throw new \RuntimeException(
-            "Undefined property: $name (Node ID: ".$this->properties['id'].')'
+            "Undefined property: $name (Node ID: ".$this->properties[$this->idKey].')'
         );
     }
 
@@ -227,7 +232,7 @@ class Node implements \JsonSerializable
      */
     public function __isset($name)
     {
-        return 'parent' === $name ||
+        return $this->parentKey === $name ||
                'children' === $name ||
                array_key_exists(strtolower($name), $this->properties);
     }
@@ -374,7 +379,7 @@ class Node implements \JsonSerializable
      */
     public function __toString()
     {
-        return (string) $this->properties['id'];
+        return (string) $this->properties[$this->idKey];
     }
 
     /**
